@@ -1,29 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+
+import useRequest from "../../hooks/useRequest";
 
 import { getUsers } from "../../api/users";
+import User from "../../components/User/User";
+import { UsersWrapper } from "./UsersStyle";
+import { CircularProgress } from "@mui/material";
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-
-    getUsers()
-      .then((users) => setUsers(users))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: users, loading, error } = useRequest(getUsers);
 
   return (
-    <ul>
-      {loading && "loading..."}
+    <UsersWrapper>
+      {loading && <CircularProgress />}
       {error && "some error..."}
       {!loading &&
         !error &&
-        users.map((user) => <li key={user.id}>{user.name}</li>)}
-    </ul>
+        users &&
+        users.map((user) => <User key={user.id} {...user} />)}
+    </UsersWrapper>
   );
 };
 
