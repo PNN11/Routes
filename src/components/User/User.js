@@ -1,9 +1,10 @@
-import { Button } from "@mui/material";
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
+import ErrorInterceptor from "../../containers/hocs/ErrorInterceptor";
 
 import { UserCard } from "./UserStyles";
+import { Button } from "@mui/material";
 
 const User = ({ name, email, phone, id }) => {
   const navigate = useNavigate();
@@ -23,4 +24,4 @@ const User = ({ name, email, phone, id }) => {
   );
 };
 
-export default User;
+export default ErrorInterceptor(User);

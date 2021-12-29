@@ -2,6 +2,7 @@ import React from "react";
 import { Switch } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { TodoWrapper } from "./TodoStyles";
+import ErrorInterceptor from "../../containers/hocs/ErrorInterceptor";
 
 const Todo = ({ title, completed, id }) => {
   const navigate = useNavigate();
@@ -16,4 +17,4 @@ const Todo = ({ title, completed, id }) => {
   );
 };
 
-export default Todo;
+export default ErrorInterceptor(Todo);
