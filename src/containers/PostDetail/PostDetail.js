@@ -27,16 +27,10 @@ const PostDetailWrapper = styled("section")`
 const PostDetail = () => {
   const params = useParams();
 
-  const requestPostById = useCallback(() => getPost(params.id), [params.id]);
-
-  const requestPostComments = useCallback(
-    () => getComments(params.id),
+  const requests = useMemo(
+    () => [() => getPost(params.id), () => getComments(params.id)],
     [params.id]
   );
-
-  const requests = useMemo(() => {
-    return [requestPostById, requestPostComments];
-  }, [requestPostById, requestPostComments]);
 
   const { data, loading, error } = useRequests(requests);
 

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
-import ErrorInterceptor from "../../containers/hocs/ErrorInterceptor";
+import ErrorInterceptor from "../../hocs/ErrorInterceptor";
 
 import { UserCard } from "./UserStyles";
 import { Button } from "@mui/material";

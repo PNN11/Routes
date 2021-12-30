@@ -2,7 +2,7 @@ import React from "react";
 
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import ErrorInterceptor from "../../containers/hocs/ErrorInterceptor";
+import ErrorInterceptor from "../../hocs/ErrorInterceptor";
 
 const PostWrapper = styled("div")`
   flex: 1 0 calc(25% - 8px);
