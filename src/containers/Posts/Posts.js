@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import styled from "styled-components";
 import { CircularProgress } from "@mui/material";
 
-import { getPosts } from "../../api/posts";
 import Post from "../../components/Post";
-import useRequest from "../../hooks/useRequest";
+import { getPosts, getSlice } from "../../store/posts";
+import * as Statuses from "../../store/statuses";
 
 const PostsWrapper = styled("section")`
   display: flex;
@@ -19,16 +20,18 @@ const PostsWrapper = styled("section")`
 `;
 
 const Posts = () => {
-  const { data: posts, loading, error } = useRequest(getPosts);
+  const dispatch = useDispatch();
+  const { posts, postsRequestStatus } = useSelector(getSlice);
+
+  useEffect(() => {
+    dispatch(getPosts());
+  }, [dispatch]);
 
   return (
     <PostsWrapper>
-      {loading && <CircularProgress />}
-      {error && "some error..."}
-      {!loading &&
-        !error &&
-        posts &&
-        posts.map((post) => <Post key={post.id} {...post} />)}
+      {postsRequestStatus === Statuses.PENDING && <CircularProgress />}
+      {postsRequestStatus === Statuses.FAILURE && "some error..."}
+      {posts && posts?.map((post) => <Post key={post.id} {...post} />)}
     </PostsWrapper>
   );
 };

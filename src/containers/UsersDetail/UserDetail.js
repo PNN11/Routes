@@ -1,10 +1,8 @@
-import React, { useCallback } from "react";
-
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
-
-import { getUser } from "../../api/users";
-
-import useRequest from "../../hooks/useRequest";
+import { getSliceUsers, getUser } from "../../store/users";
+import * as Statuses from "../../store/statuses";
 
 import { CircularProgress } from "@mui/material";
 import { Email, Home, Language, Person, Phone } from "@mui/icons-material";
@@ -12,16 +10,20 @@ import { UserDetailWrapeer } from "./UserDetailStyle";
 
 const UserDetail = () => {
   const params = useParams();
+  const dispatch = useDispatch();
+  const { user, userRequestStatus } = useSelector(getSliceUsers);
 
-  const requestUser = useCallback(() => getUser(params.id), [params.id]);
-
-  const { data: user, loading, error } = useRequest(requestUser);
+  useEffect(() => {
+    if (params.id) {
+      dispatch(getUser(params.id));
+    }
+  }, [dispatch, params.id]);
 
   return (
     <UserDetailWrapeer>
-      {loading && <CircularProgress />}
-      {error && "some error..."}
-      {!loading && !error && user && (
+      {userRequestStatus === Statuses.PENDING && <CircularProgress />}
+      {userRequestStatus === Statuses.FAILURE && "some error..."}
+      {user && (
         <>
           <Link to="/users">Back</Link>
           <h4>{user.name}</h4>

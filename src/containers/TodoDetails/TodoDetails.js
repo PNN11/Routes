@@ -1,40 +1,43 @@
-import React, { useCallback } from "react";
-
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getSliceTodos, getTodo } from "../../store/todos";
+import { getUser, getSliceUsers } from "../../store/users";
 import { useParams, Link } from "react-router-dom";
-
-import { getTodo } from "../../api/todos";
-
+import * as Statuses from "../../store/statuses";
 import { TodoWrapper } from "../../components/Todo/TodoStyles";
 
 import { UserInfoWrapper, TodoDetailWrapper } from "./TodoDetailsStyle";
 
 import { CircularProgress, Switch } from "@mui/material";
 
-import useRequest from "../../hooks/useRequest";
-import { getUser } from "../../api/users";
-
 const TodoDetails = () => {
   const params = useParams();
+  const dispatch = useDispatch();
+  const { todo, todoRequestStatus } = useSelector(getSliceTodos);
+  const { user, userRequestStatus } = useSelector(getSliceUsers);
 
-  const requestTodo = useCallback(() => getTodo(params.id), [params.id]);
+  useEffect(() => {
+    if (params.id) {
+      dispatch(getTodo(params.id));
+    }
+  }, [dispatch, params.id]);
 
-  const { data: todo, loading, error } = useRequest(requestTodo);
-
-  const requestUser = useCallback(() => {
-    if (!todo?.userId) return Promise.resolve();
-    return getUser(todo.userId);
-  }, [todo?.userId]);
-
-  const { data: user, loadingUser, errorUser } = useRequest(requestUser);
+  useEffect(() => {
+    if (todo?.userId) {
+      dispatch(getUser(todo.userId));
+    }
+  }, [todo?.userId, dispatch]);
 
   return (
     <TodoDetailWrapper>
-      {loading && <CircularProgress />}
-      {error && "some error..."}
-      {!loading && !error && todo && (
+      {todoRequestStatus === Statuses.PENDING && <CircularProgress />}
+      {todoRequestStatus === Statuses.FAILURE && "some error..."}
+      {todo && (
         <>
           <Link to="/todos">Back</Link>
-          {!loadingUser && !errorUser && user && (
+          {userRequestStatus === Statuses.PENDING && <CircularProgress />}
+          {userRequestStatus === Statuses.FAILURE && "some error..."}
+          {user && (
             <UserInfoWrapper>
               <Link to={`/users/${user.id}`}>Author: {user.name}</Link>
             </UserInfoWrapper>

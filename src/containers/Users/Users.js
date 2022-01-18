@@ -1,23 +1,24 @@
-import React from "react";
-
-import useRequest from "../../hooks/useRequest";
-
-import { getUsers } from "../../api/users";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getUsers, getSliceUsers } from "../../store/users";
 import User from "../../components/User/User";
 import { UsersWrapper } from "./UsersStyle";
 import { CircularProgress } from "@mui/material";
+import * as Statuses from "../../store/statuses";
 
 const Users = () => {
-  const { data: users, loading, error } = useRequest(getUsers);
+  const { users, usersRequestStatus } = useSelector(getSliceUsers);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUsers());
+  }, [dispatch]);
 
   return (
     <UsersWrapper>
-      {loading && <CircularProgress />}
-      {error && "some error..."}
-      {!loading &&
-        !error &&
-        users &&
-        users.map((user) => <User key={user.id} {...user} />)}
+      {usersRequestStatus === Statuses.PENDING && <CircularProgress />}
+      {usersRequestStatus === Statuses.FAILURE && "some error..."}
+      {users && users.map((user) => <User key={user.id} {...user} />)}
     </UsersWrapper>
   );
 };

@@ -1,13 +1,11 @@
-import React, { useCallback, useMemo } from "react";
-
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useParams, Link } from "react-router-dom";
-
-import { getComments, getPost } from "../../api/posts";
-import { getUser } from "../../api/users";
-import useRequest from "../../hooks/useRequest";
-import useRequests from "../../hooks/useRequests";
 import { CircularProgress } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { getComments, getSlice, getPost } from "../../store/posts";
+import * as Statuses from "../../store/statuses";
+import { getSliceUsers, getUser } from "../../store/users";
 
 const PostDetailWrapper = styled("section")`
   width: 100%;
@@ -27,36 +25,43 @@ const PostDetailWrapper = styled("section")`
 const PostDetail = () => {
   const params = useParams();
 
-  const requests = useMemo(
-    () => [() => getPost(params.id), () => getComments(params.id)],
-    [params.id]
-  );
+  const dispatch = useDispatch();
 
-  const { data, loading, error } = useRequests(requests);
+  const { post, postComments, postRequestStatus, postCommentsRequestStatus } =
+    useSelector(getSlice);
 
-  const [post, comments] = data || ["", ""];
+  const { user, userRequestStatus } = useSelector(getSliceUsers);
 
-  const requestUser = useCallback(() => {
-    if (!post.userId) return Promise.resolve();
-    return getUser(post.userId);
-  }, [post.userId]);
+  useEffect(() => {
+    if (params.id) {
+      dispatch(getPost(params.id));
+      dispatch(getComments(params.id));
+    }
+  }, [params.id, dispatch]);
 
-  const { data: user, loadingUser, errorUser } = useRequest(requestUser);
+  useEffect(() => {
+    if (post?.userId) {
+      dispatch(getUser(post.userId));
+    }
+  }, [post?.userId, dispatch]);
 
   return (
     <PostDetailWrapper>
-      {loading && <CircularProgress />}
-      {error && "some error..."}
-      {post && comments && (
+      {postRequestStatus === Statuses.PENDING &&
+        postCommentsRequestStatus === Statuses.PENDING && <CircularProgress />}
+      {postRequestStatus === Statuses.FAILURE &&
+        postCommentsRequestStatus === Statuses.FAILURE &&
+        "some error..."}
+      {post && postComments && (
         <>
           <Link to="/posts">Back</Link>
           <h1>{post.title}</h1>
-          {!loadingUser && !errorUser && user && (
-            <Link to={`/users/${user.id}`}>Author: {user.name}</Link>
-          )}
+          {userRequestStatus === Statuses.PENDING && <CircularProgress />}
+          {userRequestStatus === Statuses.FAILURE && "some error..."}
+          {user && <Link to={`/users/${user.id}`}>Author: {user.name}</Link>}
           <p>{post.body}</p>
           <h4>Comments:</h4>
-          {comments.map((comment) => (
+          {postComments.map((comment) => (
             <div key={comment.id}>
               <h5>{comment.name}</h5>
               <span>{comment.email}</span>
