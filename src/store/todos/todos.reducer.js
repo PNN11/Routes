@@ -8,7 +8,7 @@ import {
   SET_TODO,
 } from "./todos.actions";
 
-const initialState = {
+export const initialState = {
   todosRequestStatus: Statuses.UNCALLED,
   todos: [],
   todoRequestStatus: Statuses.UNCALLED,

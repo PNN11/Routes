@@ -8,7 +8,7 @@ import {
   SET_USER,
 } from "./users.actions";
 
-const initialState = {
+export const initialState = {
   usersRequestStatus: Statuses.UNCALLED,
   users: [],
   userRequestStatus: Statuses.UNCALLED,
